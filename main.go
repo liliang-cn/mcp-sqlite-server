@@ -3,27 +3,22 @@ package main
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/liliang-cn/mcp-sqlite-server/database"
 	"github.com/liliang-cn/mcp-sqlite-server/server"
 )
 
 func main() {
-	// Get multiple directory paths from arguments
-	var allowedDirs []string
-
-	if len(os.Args) > 1 {
-		// Use all arguments as directory paths
-		allowedDirs = os.Args[1:]
-	} else {
-		// Default directory
-		allowedDirs = []string{"./data"}
+	// Check arguments
+	if len(os.Args) < 2 {
+		log.Fatalf("Usage: %s <database_path_or_directory> [additional_directories...]\n", os.Args[0])
 	}
 
-	// Find the first directory with databases or use the first one as default
+	// Use all arguments as directory/file paths
+	allowedDirs := os.Args[1:]
+
+	// Find the first directory with databases
 	var dbPath string
-	var selectedDir string
 
 	for _, dir := range allowedDirs {
 		if stat, err := os.Stat(dir); err == nil && stat.IsDir() {
@@ -37,18 +32,15 @@ func main() {
 			if len(dbFiles) > 0 {
 				// Use the first database file found
 				dbPath = dbFiles[0]
-				selectedDir = dir
 				log.Printf("Found %d database file(s) in directory %s, using: %s", len(dbFiles), dir, dbPath)
 				break
 			}
 		}
 	}
 
-	// If no databases found, use first directory and create default
+	// If no databases found, exit with error
 	if dbPath == "" {
-		selectedDir = allowedDirs[0]
-		dbPath = filepath.Join(selectedDir, "mcp.db")
-		log.Printf("No database files found, will use default: %s", dbPath)
+		log.Fatalf("No database files found in directories: %v. Please specify at least one SQLite database file.", allowedDirs)
 	}
 
 	// Create and start server with allowed directories
