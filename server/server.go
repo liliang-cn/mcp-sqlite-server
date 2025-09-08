@@ -52,6 +52,35 @@ func NewSQLiteServerWithDirs(dbPath string, allowedDirs []string) (*SQLiteServer
 	return srv, nil
 }
 
+// NewSQLiteServerWithoutDB creates a new SQLite MCP server without an initial database
+func NewSQLiteServerWithoutDB() *SQLiteServer {
+	// Create server instance without database
+	srv := &SQLiteServer{
+		db:          nil,
+		dbPath:      "",
+		allowedDirs: []string{},
+	}
+
+	// Create MCP server
+	mcpServer := server.NewMCPServer(
+		"mcp-sqlite-server",
+		"1.0.0",
+		server.WithToolCapabilities(true),
+	)
+
+	srv.server = mcpServer
+
+	// Register tool handlers (will work when database is set)
+	srv.registerHandlers()
+
+	return srv
+}
+
+// SetAllowedDirs sets the allowed directories for the server
+func (s *SQLiteServer) SetAllowedDirs(dirs []string) {
+	s.allowedDirs = dirs
+}
+
 // registerHandlers registers all tool handlers
 func (s *SQLiteServer) registerHandlers() {
 	// Add tools
