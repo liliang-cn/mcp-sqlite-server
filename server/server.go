@@ -19,7 +19,7 @@ type SQLiteServer struct {
 
 // NewSQLiteServer creates a new SQLite MCP server
 func NewSQLiteServer(dbPath string) (*SQLiteServer, error) {
-	return NewSQLiteServerWithDirs(dbPath, []string{"./data"})
+	return NewSQLiteServerWithDirs(dbPath, []string{})
 }
 
 // NewSQLiteServerWithDirs creates a new SQLite MCP server with allowed directories
